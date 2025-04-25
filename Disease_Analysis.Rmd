@@ -1,0 +1,98 @@
+```{r load_csv}
+# Load CSV file from Linux system
+file_path <- "/home/presto/Documents/Tycho_L2.csv"  # ← Must include filename
+
+# Check if file exists
+if (file.exists(file_path)) {
+  # Read CSV (using readr for better performance)
+  library(readr)
+  data <- read_csv(file_path)
+  
+  # Show first 6 rows for checking
+  head(data)
+} else {
+  message("Error: File not found at:\n", file_path)
+}
+```
+
+```{r Plotting}
+#Disease-Specific Mortality Timeline
+# Load the data
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+
+df %>%
+  mutate(week_start = ymd(from_date)) %>%
+  ggplot(aes(x = week_start, y = number, color = disease)) +
+  geom_line(linewidth = 1) +
+  geom_point(size = 2) +
+  facet_wrap(~loc, scales = "free_y") +
+  labs(title = "Weekly Disease Mortality by City (June-July 1888)",
+       x = "Week Starting",
+       y = "Number of Deaths",
+       color = "Disease") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r Plotting}
+#Comparative Mortality Heatmap
+df %>%
+  group_by(loc, disease) %>%
+  summarise(total_deaths = sum(number), .groups = "drop") %>%
+  ggplot(aes(x = disease, y = loc, fill = total_deaths)) +
+  geom_tile(color = "white") +
+  geom_text(aes(label = total_deaths), color = "white") +
+  scale_fill_viridis_c(option = "plasma", direction = -1) +
+  labs(title = "Total Deaths by Disease and City",
+       x = NULL, y = NULL) +
+  theme_minimal() +
+  theme(panel.grid = element_blank())
+
+```
+```{r Plotting}
+# Load required packages
+
+# Load the data
+file_path <- file_path
+df <- read_csv(file_path)
+
+# Filter to include only death events
+df_deaths <- df %>%
+  filter(event == "DEATHS")
+
+# Aggregate total deaths by city and disease
+agg_data <- df_deaths %>%
+  group_by(loc, state, disease) %>%
+  summarise(total_deaths = sum(number), .groups = "drop")
+
+# Create a manual city -> lat/lon lookup
+city_coords <- tibble::tribble(
+  ~loc, ~state, ~lat, ~lon,
+  "PHILADELPHIA", "PA", 39.9526, -75.1652,
+  "BALTIMORE", "MD", 39.2904, -76.6122,
+  "NEW ORLEANS", "LA", 29.9511, -90.0715,
+  "RICHMOND", "VA", 37.5407, -77.4360,
+  "CLEVELAND", "OH", 41.4993, -81.6944
+)
+
+# Merge city coordinates
+map_data <- left_join(agg_data, city_coords, by = c("loc", "state"))
+
+# Base US map
+us_map <- map_data("state")
+
+# Plot
+ggplot() +
+  geom_polygon(data = us_map, aes(x = long, y = lat, group = group),
+               fill = "gray90", color = "white") +
+  geom_point(data = map_data, aes(x = lon, y = lat, size = total_deaths, color = disease),
+             alpha = 0.7) +
+  scale_size_continuous(name = "Total Deaths") +
+  labs(title = "Total Deaths by City and Disease",
+       x = "Longitude", y = "Latitude", color = "Disease") +
+  theme_minimal()
+
+
+```
