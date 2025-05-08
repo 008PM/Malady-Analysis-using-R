@@ -1,0 +1,40 @@
+---
+title: "City_Choropleth"
+output: html_document
+---
+```{r Plotting}
+
+# Load required libraries
+library(ggplot2)
+library(maps)
+library(readr)
+library(ggrepel)
+
+# Read the data
+data <- read_csv("coordinated_cities.csv")
+
+# Load US state map data
+us_map <- map_data("state")
+
+# Plot the map
+ggplot() +
+  # Draw the US map
+  geom_polygon(data = us_map, aes(x = long, y = lat, group = group),
+               fill = "gray90", color = "white") +
+  # Plot disease bubbles (color = disease, size = count)
+  geom_point(data = data, aes(x = Longitude, y = Latitude, 
+                              size = `Death Count`, color = `Top Disease`),
+             alpha = 0.8) +
+  # Add city names near the bubbles
+  geom_text_repel(data = data, 
+                  aes(x = Longitude, y = Latitude, label = City),
+                  size = 3.8, box.padding = 0.3, segment.color = "grey40") +
+  # Scale bubble sizes
+  scale_size_continuous(range = c(4, 20), name = "Death Count") +
+  # Aesthetics
+  labs(title = "Top Diseases by US City (Bubble Size = Death Count)",
+       x = "Longitude", y = "Latitude", color = "Top Disease") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+```

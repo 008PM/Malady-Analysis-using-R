@@ -51,8 +51,53 @@ df %>%
   theme(panel.grid = element_blank())
 
 ```
+
+```         
+# Load required libraries
+library(dplyr)
+library(tidyr)
+
+# Sample data (replace this with your actual data loading code)
+# Assuming the data is in a CSV file named 'disease_data.csv'
+data <- read.csv("disease_data.csv", header = FALSE, stringsAsFactors = FALSE)
+
+# Assign column names based on the sample data
+colnames(data) <- c("id", "country", "state", "city", "type", "disease", "metric", "deaths", "start_date", "end_date", "url")
+
+# List of cities to analyze
+target_cities <- c("NEW YORK CITY", "LOS ANGELES", "CHICAGO", "HOUSTON", "PHOENIX", 
+                  "PHILADELPHIA", "SAN ANTONIO", "SAN DIEGO", "DALLAS", "JACKSONVILLE")
+
+# Clean and prepare the data
+clean_data <- data %>%
+  filter(toupper(city) %in% target_cities,  # Filter for our target cities
+  metric == "DEATHS") %>%                  # Only look at death records
+  mutate(
+    city = toupper(city),                  # Standardize city names
+    deaths = as.numeric(deaths)            # Ensure deaths are numeric
+  ) %>%
+  filter(!is.na(deaths))                   # Remove NA values
+
+# Find the disease with most deaths in each city
+result <- clean_data %>%
+  group_by(city, disease) %>%
+  summarize(total_deaths = sum(deaths)) %>%
+  group_by(city) %>%
+  filter(total_deaths == max(total_deaths)) %>%
+  arrange(desc(total_deaths))
+
+# Print the results
+print(result)
+
+# Optional: Save results to CSV
+write.csv(result, "most_deadly_diseases_by_city.csv", row.names = FALSE)
+```
+
 ```{r Plotting}
 # Load required packages
+library(dplyr)
+library(ggplot2)
+library(maps)
 
 # Load the data
 file_path <- file_path
@@ -70,18 +115,27 @@ agg_data <- df_deaths %>%
 # Create a manual city -> lat/lon lookup
 city_coords <- tibble::tribble(
   ~loc, ~state, ~lat, ~lon,
-  "PHILADELPHIA", "PA", 39.9526, -75.1652,
-  "BALTIMORE", "MD", 39.2904, -76.6122,
-  "NEW ORLEANS", "LA", 29.9511, -90.0715,
-  "RICHMOND", "VA", 37.5407, -77.4360,
-  "CLEVELAND", "OH", 41.4993, -81.6944
+"NEW YORK CITY", "NY", 40.7128, -74.0060,
+"LOS ANGELES", "CA", 34.0522, -118.2437,
+"CHICAGO", "IL", 41.8781, -87.6298,
+"HOUSTON", "TX", 29.7604, -95.3698,
+"PHOENIX", "AZ", 33.4484, -112.0740,
+"PHILADELPHIA", "PA", 39.9526, -75.1652,
+"SAN ANTONIO", "TX", 29.4241, -98.4936,
+"SAN DIEGO", "CA", 32.7157, -117.1611,
+"DALLAS", "TX", 32.7767, -96.7970, 
+"JACKSONVILLE", "FL", 30.3322, -81.6557,
 )
 
 # Merge city coordinates
 map_data <- left_join(agg_data, city_coords, by = c("loc", "state"))
 
 # Base US map
-us_map <- map_data("state")
+us_map <- map_data("state")# Save the result_df DataFrame to a new CSV file
+result_df.to_csv("top_disease_by_city.csv", index=False)
+
+# Confirm the file has been saved
+print("CSV file 'top_disease_by_city.csv' has been created.")
 
 # Plot
 ggplot() +
@@ -94,5 +148,86 @@ ggplot() +
        x = "Longitude", y = "Latitude", color = "Disease") +
   theme_minimal()
 
+```
+
+```{r Plotting}
+
+# Load required libraries
+install.packages("ggrepel")
+library(ggplot2)
+library(maps)
+library(viridis)  # For color scales
+library(ggrepel)  # For better label placement
+# Load required libraries
+library(ggplot2)
+library(maps)
+library(readr)
+library(ggrepel)
+
+# Read the data
+data <- read_csv("coordinated_cities.csv")
+
+# Load US state map data
+us_map <- map_data("state")
+
+# Plot the map
+ggplot() +
+  # Draw the US map
+  geom_polygon(data = us_map, aes(x = long, y = lat, group = group),
+               fill = "gray90", color = "white") +
+  # Plot disease bubbles
+  geom_point(data = data, aes(x = Longitude, y = Latitude, 
+                              size = `Death Count`, color = `Top Disease`),
+             alpha = 0.7) +
+  # Add labels with disease name and count
+  geom_text_repel(data = data, 
+                  aes(x = Longitude, y = Latitude, 
+                      label = paste0(`Top Disease`, "\n", `Death Count`)),
+                  size = 3.5, box.padding = 0.3, segment.color = "grey40") +
+  # Scale size of bubbles
+  scale_size_continuous(range = c(4, 20), name = "Death Count") +
+  # Improve plot aesthetics
+  labs(title = "Top Disease by City in the US",
+       x = "Longitude", y = "Latitude", color = "Disease") +
+  theme_minimal() +
+  theme(legend.position = "right")
+
+
+```
+
+```{r Plotting}
+
+# Load required libraries
+library(ggplot2)
+library(maps)
+library(readr)
+library(ggrepel)
+
+# Read the data
+data <- read_csv("coordinated_cities.csv")
+
+# Load US state map data
+us_map <- map_data("state")
+
+# Plot the map
+ggplot() +
+  # Draw the US map
+  geom_polygon(data = us_map, aes(x = long, y = lat, group = group),
+               fill = "gray90", color = "white") +
+  # Plot disease bubbles (color = disease, size = count)
+  geom_point(data = data, aes(x = Longitude, y = Latitude, 
+                              size = `Death Count`, color = `Top Disease`),
+             alpha = 0.8) +
+  # Add city names near the bubbles
+  geom_text_repel(data = data, 
+                  aes(x = Longitude, y = Latitude, label = City),
+                  size = 3.8, box.padding = 0.3, segment.color = "grey40") +
+  # Scale bubble sizes
+  scale_size_continuous(range = c(4, 20), name = "Death Count") +
+  # Aesthetics
+  labs(title = "Top Diseases by US City (Bubble Size = Death Count)",
+       x = "Longitude", y = "Latitude", color = "Top Disease") +
+  theme_minimal() +
+  theme(legend.position = "right")
 
 ```
