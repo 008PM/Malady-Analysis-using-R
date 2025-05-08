@@ -1,0 +1,42 @@
+---
+title: "5_Top_Deaths"
+output: html_document
+---
+```{r data_plot, echo=TRUE}
+
+# Load required libraries
+library(ggplot2)
+library(dplyr)
+
+# Read data from CSV
+data <- read.csv("top_5_diseases.csv")
+
+# Convert 'number' to millions for better readability on the plot
+data <- data %>% mutate(number_in_millions = number / 1000000)
+
+# Create a lollipop chart
+ggplot(data, aes(x = reorder(disease, number), y = number_in_millions)) +
+  geom_segment(aes(x = reorder(disease, number), xend = reorder(disease, number), 
+                   y = 0, yend = number_in_millions), 
+               color = "grey50", linewidth = 1.5) +  # Lines (sticks) of the lollipop
+  geom_point(size = 6, aes(color = disease)) +  # Points (lollipops) with vivid colors
+  scale_color_manual(values = c("Measles" = "#FF6F61", 
+                                "Tuberculosis" = "#6B5B95", 
+                                "Scarlet Fever" = "#88B04B", 
+                                "Pneumonia" = "#F7CAC9", 
+                                "Diphtheria" = "#92A8D1")) +  # Vivid color palette
+  coord_flip() +  # Flip coordinates for better readability of disease names
+  labs(title = "Comparative Analysis of Disease Deaths",
+       x = "Disease",
+       y = "Total Deaths (in Millions)",
+       caption = "Data represents total deaths across all cities.") +
+  theme_minimal(base_size = 14) +
+  theme(legend.position = "none",  # Remove legend since colors are for aesthetics
+        plot.title = element_text(hjust = 0.5, face = "bold", color = "#333333"),
+        axis.text = element_text(color = "#333333"),
+        panel.grid.major.y = element_line(color = "grey80", linetype = "dashed"),
+        panel.grid.minor = element_blank())  # Clean, lucid theme
+
+# Save the plot (optional)
+ggsave("disease_comparison_lollipop.png", width = 8, height = 6)
+```
