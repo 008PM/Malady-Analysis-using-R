@@ -1,0 +1,36 @@
+---
+title: "State_Chloropleth"
+output: html_document
+---
+```{r Plotting}
+# Load required packages
+library(ggplot2)
+library(dplyr)
+library(readr)
+library(maps)
+
+# Read the CSV file
+state_data <- read_csv("state_death_totals.csv")  # Use your actual file path
+
+# Prepare state map data
+us_states <- map_data("state")
+
+# Convert state names to lowercase to match map_data
+state_data <- state_data %>%
+  mutate(state_name = tolower(state_name))
+
+# Join death data with map data
+map_df <- left_join(us_states, state_data, by = c("region" = "state_name"))
+
+# Plot choropleth map
+ggplot(map_df, aes(long, lat, group = group, fill = total_deaths)) +
+  geom_polygon(color = "white") +
+  coord_fixed(1.3) +
+  scale_fill_gradient(low = "lightblue", high = "darkblue", name = "Total Deaths") +
+  labs(
+    title = "US State-wise Total Deaths",
+    x = "Longitude",
+    y = "Latitude"
+  ) +
+  theme_minimal()
+```

@@ -1,0 +1,51 @@
+state_abbr,state_name,total_deaths
+AL,Alabama,58830
+AR,Arkansas,14110
+AZ,Arizona,29298
+CA,California,311252
+CO,Colorado,60527
+CT,Connecticut,51885
+DC,District of Columbia,69428
+DE,Delaware,11481
+FL,Florida,59430
+GA,Georgia,49360
+HI,Hawaii,10942
+IA,Iowa,12246
+ID,Idaho,3357
+IL,Illinois,362827
+IN,Indiana,92274
+KS,Kansas,26109
+KY,Kentucky,43954
+LA,Louisiana,96752
+MA,Massachusetts,278171
+MD,Maryland,128909
+ME,Maine,7804
+MI,Michigan,136002
+MN,Minnesota,67627
+MO,Missouri,109012
+MS,Mississippi,77
+MT,Montana,6023
+NC,North Carolina,24661
+ND,North Dakota,985
+NE,Nebraska,30731
+NH,New Hampshire,8337
+NJ,New Jersey,119201
+NM,New Mexico,16872
+NV,Nevada,18568
+NY,New York,947679
+OH,Ohio,277974
+OK,Oklahoma,22404
+OR,Oregon,22463
+PA,Pennsylvania,409857
+RI,Rhode Island,36091
+SC,South Carolina,14125
+SD,South Dakota,459
+TN,Tennessee,107972
+TX,Texas,172143
+UT,Utah,23179
+VA,Virginia,50474
+VT,Vermont,1819
+WA,Washington,44865
+WI,Wisconsin,62383
+WV,West Virginia,10847
+WY,Wyoming,141
