@@ -1,0 +1,20 @@
+Disease,Total_Deaths,Communicable
+Tuberculosis,610350,C
+Pneumonia,429167,C
+Pneumonia And Influenza,254963,C
+Diphtheria,97441,C
+Typhoid Fever,43672,C
+Influenza,38054,C
+Scarlet Fever,34445,C
+Whooping Cough,16624,C
+Meningitis,4048,C
+Smallpox,2566,C
+Brucellosis,1447,C
+Pellagra,754,NC
+Chickenpox,579,C
+Typhus Fever,244,C
+Varioloid,9,C
+Cholera,6,C
+Yellow Fever,4,C
+Dengue,2,C
+Leprosy,0,C
